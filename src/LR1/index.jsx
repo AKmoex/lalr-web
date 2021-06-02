@@ -88,6 +88,7 @@ class LR1 extends React.Component{
                 
             },
 
+            // 测试 语法树
             d:[
                 ["s","i"],
                 ["r","i","F"],
@@ -109,37 +110,7 @@ class LR1 extends React.Component{
     }
 
 
-    componentDidMount(){
-        let data=this.state.d;
-        let lst=[];
-        for(let i=0;i<data.length;i++){
-            if(data[i][0]=="s"){
-                lst.push({
-                    name:data[i][1],
-                    children:[]
-                })    
-            }
-            else{
-                let len=data[i][1].length;
-                let children=[]
-         
-                for(let j=len;j>0;j--){
-                    children.push(lst[lst.length-j])
-                }
-                for(let j=0;j<len;j++){
-                    lst.pop();
-                }
-                lst.push({
-                    name:data[i][2],
-                    children:children
-                })
-            }
-           
-        }
-        this.setState({
-            treeData:lst[0]
-        })
-    }
+   
     
     formRef = React.createRef();
 
@@ -342,6 +313,37 @@ class LR1 extends React.Component{
                 }
                 this.setState({
                     nn
+                })
+
+                // 画语法树
+                let lst=[];
+                // 遍历后端传过来的信息
+                // 需要直接忽略掉最后一项空数组
+                for(let i=0;i<res.data.Tree.length-1;i++){
+                    if(res.data.Tree[i][0]=="s"){
+                        lst.push({
+                            name:res.data.Tree[i][1],
+                            children:[]
+                        })    
+                    }
+                    else{
+                        let len=res.data.Tree[i][1].length;
+                        let children=[]
+                        for(let j=len;j>0;j--){
+                            children.push(lst[lst.length-j])
+                        }
+                        for(let j=0;j<len;j++){
+                            lst.pop();
+                        }
+                        lst.push({
+                            name:res.data.Tree[i][2],
+                            children:children
+                        })
+                    }
+                
+                }
+                this.setState({
+                    treeData:lst[0]
                 })
                 
                 message.success({ content: '分析成功!',key, duration: 1.5 });

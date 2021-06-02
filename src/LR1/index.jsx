@@ -7,6 +7,8 @@ import { FrownTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/ico
 import * as d3 from 'd3'
 import * as d3Graphviz from 'd3-graphviz';
 import Graph from "react-graph-vis";
+import Tree from 'react-d3-tree';
+
 
 import {
     Card,
@@ -81,11 +83,64 @@ class LR1 extends React.Component{
                 nodes:[],
                 edges:[]
             },
-            prod_data:[]
+            prod_data:[],
+            treeData : {
+                
+            },
+
+            d:[
+                ["s","i"],
+                ["r","i","F"],
+                ["r","F","T"],
+                ["r","T","E"],
+                ["s","+"],
+                ["s","i"],
+                ["r","i","F"],
+                ["r","F","T"],
+                ["s","*"],
+                ["s","i"],
+                ["r","i","F"],
+                ["r","T*F","T"],
+                ["r","E+T","E"]
+            ]
             
         }
         
     }
+
+
+    componentDidMount(){
+        let data=this.state.d;
+        let lst=[];
+        for(let i=0;i<data.length;i++){
+            if(data[i][0]=="s"){
+                lst.push({
+                    name:data[i][1],
+                    children:[]
+                })    
+            }
+            else{
+                let len=data[i][1].length;
+                let children=[]
+         
+                for(let j=len;j>0;j--){
+                    children.push(lst[lst.length-j])
+                }
+                for(let j=0;j<len;j++){
+                    lst.pop();
+                }
+                lst.push({
+                    name:data[i][2],
+                    children:children
+                })
+            }
+           
+        }
+        this.setState({
+            treeData:lst[0]
+        })
+    }
+    
     formRef = React.createRef();
 
     events={
@@ -137,9 +192,18 @@ class LR1 extends React.Component{
                                 ):null
                             }
                         </Panel>
-                    </Collapse>  
+                    </Collapse> 
+
                     <Collapse defaultActiveKey={0} >
-                        <Panel header="分析过程" key="2">
+                        <Panel header="分析树" key="6" >
+                            <div className="tree">
+                                <Tree data={this.state.treeData} orientation='vertical'/>
+                            </div>
+                        </Panel>
+                    </Collapse> 
+                    
+                    <Collapse defaultActiveKey={0} >
+                        <Panel header="分析过程" key="3">
                             <Table columns={this.state.columns2} dataSource={this.state.data2} pagination={false}/>
                         </Panel>
                     </Collapse>

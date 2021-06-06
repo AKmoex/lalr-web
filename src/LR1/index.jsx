@@ -118,13 +118,15 @@ class LR1 extends React.Component{
 
     events={
         select: ({ nodes, edges }) => {
-        
-        if(nodes[0]){
+        let d=this.state.nn[nodes[0]];
+        if(typeof(nodes[0])!="undefined"){
             this.setState({
+                current_node_data:d,
                 current_node:nodes[0],
-                current_node_data:this.state.nn[nodes[0]]
-              })
+                
+            })
         }
+        console.log(this.state.current_node_data);
         
         }
       }

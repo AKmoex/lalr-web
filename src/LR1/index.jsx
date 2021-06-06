@@ -2,7 +2,7 @@ import React from 'react'
 
 import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
 import './lr1.css'
-import { FrownTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { FrownTwoTone, MinusCircleOutlined, PlusOutlined,SmileOutlined } from '@ant-design/icons';
 
 import * as d3 from 'd3'
 import * as d3Graphviz from 'd3-graphviz';
@@ -19,6 +19,8 @@ import {
      Tag,
      Collapse,
      message,
+     notification,
+   
   } from 'antd';
 
 
@@ -190,8 +192,6 @@ class LR1 extends React.Component{
             expression:""
         })
     }
-
-
     analyse(){
         const key="analyse"
                 
@@ -347,7 +347,24 @@ class LR1 extends React.Component{
                     treeData:lst[0]
                 })
                 
+                
+
                 message.success({ content: '分析成功!',key, duration: 1.5 });
+
+                // 右上角提示
+                let t
+                if(res.data.type=="LALR"){
+                    t=(<span>该文法的所有项目集族合并后均无  <Tag color="magenta">归约-归约</Tag>错误,故可以采用 <Tag color="green">LALR</Tag>分析法分析</span>)
+                }
+                else{
+                    t=(<span>该文法的所有项目集族合并后存在  <Tag color="magenta">归约-归约</Tag>错误,故自动切换为 <Tag color="green">LR1</Tag>分析法分析</span>)
+                }
+                notification.open({
+                    message: '🎉Analyse Success !',
+                    description:t,
+                    duration: 2.8,
+                });
+                
 
             })
         })

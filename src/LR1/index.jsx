@@ -116,18 +116,19 @@ class LR1 extends React.Component{
 
     events={
         select: ({ nodes, edges }) => {
-          this.setState({
-            current_node:nodes,
-            current_node_data:this.state.nn[nodes]
-          })
+        
+        if(nodes[0]){
+            this.setState({
+                current_node:nodes[0],
+                current_node_data:this.state.nn[nodes[0]]
+              })
+        }
+        
         }
       }
     render(){   
         return(
             <div className="container">
-                 
-
-
                 <div className="left-side">                 
                     <Card title="输入" size="small">
                         <Form layout="vertical" ref={this.formRef}>

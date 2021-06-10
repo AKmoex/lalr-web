@@ -44,21 +44,21 @@ class OPA extends React.Component{
                     key: 'vn',
                 },
                 {
-                    title: 'FIRST集',
-                    dataIndex: 'first',
-                    key: 'first',
+                    title: 'FIRSTVT集',
+                    dataIndex: 'firstvt',
+                    key: 'firstvt',
                 },
             ],
-            follow_columns:[
+            last_columns:[
                 {
                     title: '非终结符',
                     dataIndex: 'vn',
                     key: 'vn',
                 },
                 {
-                    title: 'FOLLOW集',
-                    dataIndex: 'follow',
-                    key: 'follow',
+                    title: 'LASTVT集',
+                    dataIndex: 'lastvt',
+                    key: 'lastvt',
                 },
             ],
             first:[
@@ -98,16 +98,24 @@ class OPA extends React.Component{
               key: 'input_string',
               dataIndex:'input_string'
             },
+           
+
             {
-                title: '所用产生式',
-                key: 'prod',
-                dataIndex:'prod'
-            },
-            {
-                title: '动作',
-                key: 'action',
-                dataIndex:'action'
-              },
+                title:"动作说明",
+                dataIndex:"action",
+                key:"action",
+                render: text => {
+                    if(text==="ERROR"){
+                        return <Tag color="#f50">{text}</Tag>
+                    }
+                    else if(text==="ACCEPT"){
+                        return  <Tag color="#87d068">{text}</Tag>
+                    }
+                    else{
+                        return text
+                    }
+                }
+              }
         ];
         return(
             <div className="container">
@@ -128,17 +136,17 @@ class OPA extends React.Component{
                 <div className="right-side">
         
                     <Collapse defaultActiveKey={0} >
-                        <Panel header="FirstVT集" key="2">
+                        <Panel header="FIRSTVT集" key="2">
                             <Table dataSource={this.state.first} columns={this.state.first_columns} />
                         </Panel>
                     </Collapse> 
                     <Collapse defaultActiveKey={0} >
-                        <Panel header="LastVT集" key="3">
-                            <Table dataSource={this.state.follow} columns={this.state.follow_columns} />
+                        <Panel header="LASTVT集" key="3">
+                            <Table dataSource={this.state.follow} columns={this.state.last_columns} />
                         </Panel>
                     </Collapse>
                     <Collapse defaultActiveKey={0} >
-                        <Panel header="预测分析表" key="4">
+                        <Panel header="算符优先分析表" key="4">
                             <Table dataSource={this.state.table_body} columns={this.state.table_header} />
                         </Panel>
                     </Collapse>    
@@ -216,136 +224,134 @@ class OPA extends React.Component{
             
             axios.get('/opa', {
                 params: {
-                    grammar: value.grammar?value.grammar:"",
-                    expression:value.expression?value.expression:""
+                    grammar: value.grammar?value.grammar+"\n#\n":"",
+                    expression:value.expression?value.expression+"#":"#"
                 },
             }).then((res)=>{
+
+                // FIRSTVT集
+                console.log(res.data);
+                let first_data=[]
+                for(let one_vn in res.data.FIRSTVT) {
+                    let s="";
+                    for(let j=1;j<res.data.FIRSTVT[one_vn].length;j++){
+                        s+=res.data.FIRSTVT[one_vn][j]+"  ";
+                    }
+                    let a={
+                        "vn":res.data.FIRSTVT[one_vn][0],
+                        "firstvt":s
+                    }
+                    first_data.push(a)
+               }
+
+               // LASTVT集
+               let last_data=[]
+                for(let one_vn in res.data.LASTVT) {
+                    let s="";
+                    for(let j=1;j<res.data.LASTVT[one_vn].length;j++){
+                        s+=res.data.LASTVT[one_vn][j]+"  ";
+                    }
+                    let a={
+                        "vn":res.data.LASTVT[one_vn][0],
+                        "lastvt":s
+                    }
+                    last_data.push(a)
+               }
+               this.setState({
+                   first:first_data,
+                   follow:last_data
+               })
+
+
+
+                 // 预测分析表
+                 let table_header=[]
+              
+                 table_header.push({
+                     title:" ",
+                     dataIndex:"ch0"
+                 })
+                 for(let i=1;i<res.data.Table_header.length;i++){
+                      let t="ch"+(i)
+                      table_header.push({
+                          title:res.data.Table_header[i],
+                          dataIndex:t
+                      })
+                 }
+                 let table_body=[]
                 
-                // 新的文法
-                let new_grammar=[];
-                for(let i=0;i<res.data.new_grammars.length;i++){
-                    new_grammar.push({
-                        grammar_index:i+1,
-                        grammar:res.data.new_grammars[i]
-                    })
-                }
-                this.setState({
-                    new_grammar
-                })
+                 for(let i=0;i<res.data.Table_body.length;i++){
+                     let row={};
+                     for(let j=0;j<res.data.Table_body[i].length;j++){
+                        let t="ch"+(j);
+                        if(res.data.Table_body[i][j]=="\u0000"){
+                            row[t]=" ";
+                        }
+                        else{
+                            row[t]=res.data.Table_body[i][j];
+                        }
+                     }
+                     table_body.push(row)
+                 }
+                 
+                 console.log(table_header);
+                 console.log(table_body);
+
+                 
+                 this.setState({
+                  table_header,
+                  table_body
+                 })
+
+                
                 // 分析过程
-                let newData=res.data.Steps.map((item,index)=>{
-                    let arr=item.split(" ")
+                let newData=res.data.Process.map((item,index)=>{
+                   
+                    console.log(item[1].split("\u0000"));
+                    let prod;
+                    if(item[2]=="Reduce"){
+                        prod=item[3]+"->"+item[4]
+                    }
+                    else{
+                        prod="";
+                    }
                     return({
                         step:index,
-                        analysis_stack:arr[0],
-                        input_string:arr[1],
-                        prod:arr[2],
-                        action:arr[3]
+                        analysis_stack:item[0],
+                        input_string:item[1].split("\u0000"),
+                        action:item[2],
+                        prod
                     })
                 })
                 this.setState({
                     data:newData
                 })
 
-                // FIRST集
-                let first_data=[]
-                for(let one_vn in res.data.FIRST) {
-                    
-                    let s="";
-              
-                    for(let j=0;j<res.data.FIRST[one_vn].length;j++){
+                
 
-                        s+=res.data.FIRST[one_vn][j]+" ";
-                    }
-                    let a={
-                        "vn":one_vn,
-                        "first":s
-                    }
-                    first_data.push(a)
-               }
-
-               // FOLLOW集
-               let follow_data=[]
-                for(let one_vn in res.data.FOLLOW) {
-                    
-                    let s="";
-              
-                    for(let j=0;j<res.data.FOLLOW[one_vn].length;j++){
-
-                        
-                        s+=res.data.FOLLOW[one_vn][j]+" ";
-                    }
-                    let a={
-                        "vn":one_vn,
-                        "follow":s
-                    }
-                    follow_data.push(a)
-               }
-               this.setState({
-                   first:first_data,
-                   follow:follow_data
-               })
-
-               // 预测分析表
-               let table_header=[]
-              
-               table_header.push({
-                   title:"终结符",
-                   dataIndex:"vn"
-               })
-               for(let i=0;i<res.data.Table_header.length;i++){
-                    let t="ch"+(i+1)
-                    table_header.push({
-                        title:t,
-                        dataIndex:t
-                    })
-               }
-               let table_body=[]
-               let row1={}
-               row1["vn"]=""
-               for(let i=0;i<res.data.Table_header.length;i++){
-                    let t="ch"+(i+1)
-                    row1[t]=res.data.Table_header[i]
-               }
-               table_body.push(row1)
-               for(let one_vn in res.data.Table_body){
-                   let row={
-                       "vn":one_vn
-                   }
-                   for(let j=0;j<res.data.Table_body[one_vn].length;j++){
-                       let t="ch"+(j+1)
-                       row[t]=res.data.Table_body[one_vn][j]
-                   }
-                   table_body.push(row)
-               }
-               
-               this.setState({
-                table_header,
-                table_body
-               })
-
+            
         
 
-            // 分析树
-            var treeData = {};
+            // // 分析树
+            // var treeData = {};
             
             
-                if(res.data.success){
-                    for(let i=0;i<res.data.Steps.length;i++){
-                        let arr=res.data.Steps[i].split(" ")
-                        let prod=arr[2]
-                        if(prod!=""){ 
-                            this.ParserTree(treeData, prod);
-                        }
+            //     if(res.data.success){
+            //         for(let i=0;i<res.data.Steps.length;i++){
+            //             let arr=res.data.Steps[i].split(" ")
+            //             let prod=arr[2]
+            //             if(prod!=""){ 
+            //                 this.ParserTree(treeData, prod);
+            //             }
                       
-                    }
-                }
+            //         }
+            //     }
             
             
-               this.setState({
-                   treeData
-               })
-               message.success({ content: '分析成功!',key, duration: 1.5 });
+            //    this.setState({
+            //        treeData
+            //    })
+            //    message.success({ content: '分析成功!',key, duration: 1.5 });
                
             })
            

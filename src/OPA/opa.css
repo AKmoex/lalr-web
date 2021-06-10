@@ -1,0 +1,13 @@
+.container{
+    background-color: #F0F2F5; 
+    padding:100px 40px;
+    display: flex;
+    flex-direction: row;
+  }
+  .btn{
+      margin-left: 300px;
+  }
+  .tree{
+    height:800px;
+    box-sizing: border-box;
+  }

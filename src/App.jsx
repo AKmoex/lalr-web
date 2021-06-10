@@ -9,6 +9,8 @@ import FilterCenterFocusIcon from '@material-ui/icons/FilterCenterFocus';
 import TuneIcon from '@material-ui/icons/Tune';
 import Lex from './Lex';
 import LL1 from './LL1'
+import LR1 from './LR1'
+import OPA from './OPA'
 import LALR from './LALR'
 
 const useStyles = makeStyles({
@@ -41,8 +43,8 @@ class App extends React.Component{
                 >
                     <BottomNavigationAction label="Lex" icon={<PrintIcon />} />
                     <BottomNavigationAction label="LL1" icon={<AllInclusiveIcon />} />
-                    {/* <BottomNavigationAction label="LR1" icon={<RestoreIcon />} /> */}
-                    {/* <BottomNavigationAction label="OPA" icon={<FilterCenterFocusIcon />} /> */}
+                    <BottomNavigationAction label="LR1" icon={<RestoreIcon />} /> 
+                    <BottomNavigationAction label="OPA" icon={<FilterCenterFocusIcon />} />
                     <BottomNavigationAction label="LALR" icon={<TuneIcon />} />
                 </BottomNavigation>
                 {(() => {
@@ -52,9 +54,9 @@ class App extends React.Component{
                         case 1:
                             return <LL1 />;
                         case 2:
-                            return <LALR />;
+                            return <LR1 />;
                         case 3:
-                            return <LALR />;
+                            return <OPA />;
                         case 4:
                             return <LALR />;
                         default:

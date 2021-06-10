@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Lex from './Lex';
-import LL1 from './LL1'
-import LR1 from './LR1'
+
+import App from './App'
 
 ReactDOM.render(
-    <LR1 />,
+    <App />,
   document.getElementById('root')
 );
 

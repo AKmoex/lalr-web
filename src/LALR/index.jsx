@@ -1,7 +1,7 @@
 import React from 'react'
 
 import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
-import './lr1.css'
+import './lalr.css'
 import { FrownTwoTone, MinusCircleOutlined, PlusOutlined,SmileOutlined } from '@ant-design/icons';
 
 import * as d3 from 'd3'
@@ -28,7 +28,7 @@ import axios from 'axios';
 import { interpolate } from 'd3';
 const { Panel } = Collapse;
 
-class LR1 extends React.Component{
+class LALR extends React.Component{
     
     constructor(props){
         super(props)
@@ -200,7 +200,7 @@ class LR1 extends React.Component{
         let { validateFields } = this.formRef.current;
         validateFields().then( (value) => {
             message.loading({ content: '分析中...',key });
-            axios.get('/lr1', {
+            axios.get('/lalr', {
                 params: {
                     grammar: value.grammar?value.grammar:"",
                     expression:value.expression?value.expression:""
@@ -320,34 +320,76 @@ class LR1 extends React.Component{
 
                 // 画语法树
                 let lst=[];
-                // 遍历后端传过来的信息
-                // 需要直接忽略掉最后一项空数组
-                for(let i=0;i<res.data.Tree.length-1;i++){
-                    if(res.data.Tree[i][0]=="s"){
-                        lst.push({
-                            name:res.data.Tree[i][1],
-                            children:[]
-                        })    
+
+                // 若最后一项是一个空数组,则表明表达式可以推导出来
+                if(res.data.Tree[res.data.Tree.length-1].length==0){
+                    for(let i=0;i<res.data.Tree.length-1;i++){
+                        if(res.data.Tree[i][0]=="s"){
+                            lst.push({
+                                name:res.data.Tree[i][1],
+                                children:[]
+                            })    
+                        }
+                        else{
+                            let len=res.data.Tree[i][1].length;
+                            let children=[]
+                            for(let j=len;j>0;j--){
+                                children.push(lst[lst.length-j])
+                            }
+                            for(let j=0;j<len;j++){
+                                lst.pop();
+                            }
+                            lst.push({
+                                name:res.data.Tree[i][2],
+                                children:children
+                            })
+                        }
+                    
                     }
-                    else{
-                        let len=res.data.Tree[i][1].length;
-                        let children=[]
-                        for(let j=len;j>0;j--){
-                            children.push(lst[lst.length-j])
+                    this.setState({
+                        treeData:lst[0]
+                    })
+                }
+                // 最后一项不是空数组,则说明表达式推导过程中出现错误
+                else{
+                    for(let i=0;i<res.data.Tree.length-1;i++){
+                        // 移进过程
+                        if(res.data.Tree[i][0]=="s"){
+                            lst.push({
+                                name:res.data.Tree[i][1],
+                                children:[]
+                            })    
                         }
-                        for(let j=0;j<len;j++){
-                            lst.pop();
-                        }
+                        // 归约过程
+                        else if(res.data.Tree[i][0]=="r"){
+                            let len=res.data.Tree[i][1].length;
+                            let children=[]
+                            for(let j=len;j>0;j--){
+                                children.push(lst[lst.length-j])
+                            }
+                            for(let j=0;j<len;j++){
+                                lst.pop();
+                            }
+                            lst.push({
+                                name:res.data.Tree[i][2],
+                                children:children
+                            })
+                        }      
+                    }
+                    // 单独处理最后的出错步骤
+                    
+                    for(let b=0;b<res.data.Tree[res.data.Tree.length-1][1].length-1;b++){
                         lst.push({
-                            name:res.data.Tree[i][2],
-                            children:children
+                            name:res.data.Tree[res.data.Tree.length-1][1][b],
+                            children:[],
                         })
                     }
-                
+                    console.log(lst);
+                    this.setState({
+                        treeData:lst[0]
+                    })
                 }
-                this.setState({
-                    treeData:lst[0]
-                })
+                
                 
                 
 
@@ -376,7 +418,7 @@ class LR1 extends React.Component{
     }
 }
 
-export default LR1
+export default LALR
 
 
 

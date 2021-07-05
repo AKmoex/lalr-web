@@ -9,16 +9,10 @@ import {
     Card,
     Form,
     Input,
-    Row,
-    Col,
-    Select,
-    DatePicker,
     Table,
-    Popconfirm,
     Button,
-    Tooltip,
-     Tag, Space,
-     Modal,
+     Tag,
+
      Collapse,
      message
   } from 'antd';
@@ -92,20 +86,46 @@ class OPA extends React.Component{
               title: '分析栈',
               key: 'analysis_stack',
               dataIndex: 'analysis_stack',
+              render: text => {
+                if(text==="ERROR"){
+                    return <Tag color="#f50">{text}</Tag>
+                }
+                else if(text==="ACCEPT"){
+                    return  <Tag color="#87d068">{text}</Tag>
+                }
+                else{
+                    return text
+                }
+            }
             },
             {
               title: '剩余输入串',
               key: 'input_string',
-              dataIndex:'input_string'
-            },
-           
+              dataIndex:'input_string',
+              render: text => {
+                if(text==="ERROR"){
+                    console.log("ERROR")
+                    return <Tag color="#f50">{text}</Tag>
+                }
+                else if(text==="ACCEPT"){
+                    console.log("accept")
 
+                    return  <Tag color="#87d068">{text}</Tag>
+                }
+                else{
+                    console.log({text});
+                    console.log("WU")
+                    return text
+                }
+            }
+            },
             {
                 title:"动作说明",
                 dataIndex:"action",
                 key:"action",
                 render: text => {
                     if(text==="ERROR"){
+                       
                         return <Tag color="#f50">{text}</Tag>
                     }
                     else if(text==="ACCEPT"){
@@ -115,7 +135,12 @@ class OPA extends React.Component{
                         return text
                     }
                 }
-              }
+            },
+            {
+                title: '所用产生式',
+                key: 'prod',
+                dataIndex:'prod'
+            },
         ];
         return(
             <div className="container">
@@ -262,8 +287,6 @@ class OPA extends React.Component{
                    follow:last_data
                })
 
-
-
                  // 预测分析表
                  let table_header=[]
               
@@ -293,11 +316,7 @@ class OPA extends React.Component{
                      }
                      table_body.push(row)
                  }
-                 
-                 console.log(table_header);
-                 console.log(table_body);
 
-                 
                  this.setState({
                   table_header,
                   table_body
@@ -307,7 +326,6 @@ class OPA extends React.Component{
                 // 分析过程
                 let newData=res.data.Process.map((item,index)=>{
                    
-                    console.log(item[1].split("\u0000"));
                     let prod;
                     if(item[2]=="Reduce"){
                         prod=item[3]+"->"+item[4]
@@ -327,34 +345,43 @@ class OPA extends React.Component{
                     data:newData
                 })
 
-                
-
-            
         
+            // 语法树
+            let lst=[];
 
-            // // 分析树
-            // var treeData = {};
-            
-            
-            //     if(res.data.success){
-            //         for(let i=0;i<res.data.Steps.length;i++){
-            //             let arr=res.data.Steps[i].split(" ")
-            //             let prod=arr[2]
-            //             if(prod!=""){ 
-            //                 this.ParserTree(treeData, prod);
-            //             }
-                      
-            //         }
-            //     }
-            
-            
-            //    this.setState({
-            //        treeData
-            //    })
-            //    message.success({ content: '分析成功!',key, duration: 1.5 });
+            for(let i=0;i<res.data.Process.length;i++){
+                if(res.data.Process[i][2]==="Move"){
+                    lst.push({
+                        name:res.data.Process[i][1][0],
+                        children:[]
+                    })
+                }
+                else if(res.data.Process[i][2]==="Reduce"){
+                    let len=res.data.Process[i][4].length;
+                    let children=[]
+                    for(let j=len;j>0;j--){
+                        children.push(lst[lst.length-j])
+                    }
+                    for(let j=0;j<len;j++){
+                        lst.pop();
+                    }
+                    lst.push({
+                        name:res.data.Process[i][3],
+                        children:children
+                    })
+                }
+                else{
+                    break;
+                }
+                
+            }
+            this.setState({
+                treeData:lst[0]
+            })
+
                
             })
-           
+            message.success({ content: '分析成功!',key, duration: 1.5 });
 
         })
         .catch((err)=>{

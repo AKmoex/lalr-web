@@ -9,6 +9,7 @@ import * as d3Graphviz from 'd3-graphviz';
 import Graph from "react-graph-vis";
 import Tree from 'react-d3-tree';
 
+import { AppleOutlined, AndroidOutlined } from '@ant-design/icons';
 
 import {
     Card,
@@ -20,13 +21,34 @@ import {
      Collapse,
      message,
      notification,
-   
+     Drawer,
+     Tabs,
+     Row,
+     Col,
+     Descriptions,
+     Badge
   } from 'antd';
 
 
 import axios from 'axios';
 import { interpolate } from 'd3';
 const { Panel } = Collapse;
+
+// 无冲突
+const g1 = "E->E+T<br />E->T<br />T->T*F<br />T->F<br />F->(E)<br />F->i"
+const e1="i+i*i"
+
+// 有冲突
+const g2 = "S->aAd|bBd|aBe|bAe<br />A->c<br />B->c"
+const e2="bce"
+
+// 其他1
+const g3 = "S->L=R<br />S->R<br />L->*R<br />L->x<br />R->L"
+const e3="**x=**x"
+
+// 其他2
+const g4="S->BB<br />B->aB<br />B->b"
+const e4="aaabaaab"
 
 class LALR extends React.Component{
     
@@ -105,14 +127,12 @@ class LALR extends React.Component{
                 ["r","i","F"],
                 ["r","T*F","T"],
                 ["r","E+T","E"]
-            ]
-            
+            ],
+            drawerVisible:false
         }
         
     }
 
-
-   
     
     formRef = React.createRef();
 
@@ -134,7 +154,7 @@ class LALR extends React.Component{
         return(
             <div className="container">
                 <div className="left-side">                 
-                    <Card title="输入" size="small">
+                    <Card title="LALR分析" size="small"  extra={<a onClick={this.showDrawer.bind(this)}>👋 Examples</a>}>
                         <Form layout="vertical" ref={this.formRef}>
                             <Form.Item label="输入文法" name="grammar" rules={[{ required: true, message: '文法不能为空' }]}>
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
@@ -185,13 +205,158 @@ class LALR extends React.Component{
                     </Collapse>
                     
                 </div>
+                
+                <Drawer
+                    title="🗃 Examples"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.drawerVisible}
+                    width={400}
+                >
+                    <Tabs defaultActiveKey="1">
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            💻  无冲突
+                            </span>
+                        }
+                        key="1"
+                        >
+                        <Card size={'small'}>
+                            <Card title="文法" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g1}}></p>
+                            </Card>
+                            <Card title="表达式" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: e1}}></p>
+                            </Card>
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill1.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            🖨  有冲突
+                            </span>
+                        }
+                        key="2"
+                        >
+                            <Card size={'small'}>
+                                <Card title="文法" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: g2}}></p>
+                                </Card>
+                                <Card title="表达式" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: e2}}></p>
+                                </Card>
+                                <Row justify="end">     
+                                    <Col>
+                                        <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill2.bind(this)}>Fill</Button>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            💾  其他
+                            </span>
+                        }
+                        key="3"
+                        >
+                            <Card size={'small'}>
+                                <Card title="文法" bordered={false}  size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: g3}}></p>
+                                </Card>
+                                <Card title="表达式" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: e3}}></p>
+                                </Card>
+                                <Row justify="end">     
+                                    <Col>
+                                        <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill3.bind(this)}>Fill</Button>
+                                    </Col>
+                                </Row>
+                            </Card>
+                            <Card size={'small'}>
+                                <Card title="文法" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: g4}}></p>
+                                </Card>
+                                <Card title="表达式" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: e4}}></p>
+                                </Card>
+                                <Row justify="end">     
+                                    <Col>
+                                        <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill4.bind(this)}>Fill</Button>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Tabs.TabPane>
+                    </Tabs>,
+                    
+                </Drawer>
             </div>
         )
     }
+
+    showDrawer () {
+        this.setState({
+            drawerVisible:true
+        })
+    };
+    
+    onClose = () => {
+        this.setState({
+            drawerVisible:false
+        })
+    };
+
     clearForm(){
         this.formRef.current.setFieldsValue({
             grammar:"",
             expression:""
+        })
+    }
+    // 无冲突 
+    Fill1(){
+        this.formRef.current.setFieldsValue({
+            grammar:"E->E+T\nE->T\nT->T*F\nT->F\nF->(E)\nF->i",
+            expression:"i+i*i"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 有冲突 
+    Fill2(){
+        this.formRef.current.setFieldsValue({
+            grammar:"S->aAd|bBd|aBe|bAe\nA->c\nB->c",
+            expression:"bce"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 其他1
+    Fill3(){
+        this.formRef.current.setFieldsValue({
+            grammar:"S->L=R\nS->R\nL->*R\nL->x\nR->L",
+            expression:"**x=**x"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 其他2 
+    Fill4(){
+        this.formRef.current.setFieldsValue({
+            grammar:"S->BB\nB->aB\nB->b",
+            expression:"aaabaaab"
+        });
+        this.setState({
+            drawerVisible:false
         })
     }
     analyse(){
@@ -281,7 +446,6 @@ class LALR extends React.Component{
                 })
 
                 // 画状态图
-
                 let graph={
                    
                 }
@@ -390,9 +554,6 @@ class LALR extends React.Component{
                     })
                 }
                 
-                
-                
-
                 message.success({ content: '分析成功!',key, duration: 1.5 });
 
                 // 右上角提示

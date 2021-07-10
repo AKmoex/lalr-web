@@ -14,17 +14,22 @@ import {
     Input,
     Table,
     Button,
-     Tag,
-     Collapse,
-     message,
-     Row,
-     Col
+    Tag,
+    Collapse,
+    message,
+    Row,
+    Col,
+    Tabs,
+    Drawer
   } from 'antd';
 
 
 import axios from 'axios';
-import { interpolate } from 'd3';
+
 const { Panel } = Collapse;
+
+const g1 = "E->E+T<br />E->T<br />T->T*F<br />T->F<br />F->(E)<br />F->i"
+const e1="i+i*i"
 
 class LR1 extends React.Component{
     
@@ -83,7 +88,8 @@ class LR1 extends React.Component{
                 nodes:[],
                 edges:[]
             },
-            prod_data:[]
+            prod_data:[],
+            drawerVisible:false
             
         }
         
@@ -103,7 +109,7 @@ class LR1 extends React.Component{
             <div className="container">
                  
                 <div className="left-side">                 
-                    <Card title="输入" size="small">
+                    <Card title="输入" size="small" extra={<a onClick={this.showDrawer.bind(this)}>👋 Examples</a>}>
                         <Form layout="vertical" ref={this.formRef}>
                             <Form.Item label="输入文法" name="grammar" rules={[{ required: true, message: '文法不能为空' }]}>
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
@@ -152,6 +158,40 @@ class LR1 extends React.Component{
                     </Collapse>
                     
                 </div>
+                <Drawer
+                    title="🗃 Examples"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.drawerVisible}
+                    width={400}
+                >
+                    <Tabs defaultActiveKey="1">
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            🛠  样例一
+                            </span>
+                        }
+                        key="1"
+                        >
+                        <Card size={'small'}>
+                            <Card title="文法" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g1}}></p>
+                            </Card>
+                            <Card title="表达式" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: e1}}></p>
+                            </Card>
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill1.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                    </Tabs>,
+                    
+                </Drawer>
             </div>
         )
     }
@@ -161,7 +201,28 @@ class LR1 extends React.Component{
             expression:""
         })
     }
+    // 样例一 
+    Fill1(){
+        this.formRef.current.setFieldsValue({
+            grammar:"E->E+T\nE->T\nT->T*F\nT->F\nF->(E)\nF->i",
+            expression:"i+i*i"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
 
+    showDrawer () {
+        this.setState({
+            drawerVisible:true
+        })
+    };
+    
+    onClose = () => {
+        this.setState({
+            drawerVisible:false
+        })
+    };
 
     analyse(){
         const key="analyse"

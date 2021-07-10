@@ -20,12 +20,17 @@ import {
      Tag, Space,
      Modal,
      Collapse,
-     message
+     message,
+     Tabs,
+     Drawer
   } from 'antd';
 
 
 import axios from 'axios';
 const { Panel } = Collapse;
+
+const g1="E->TG<br />G->+TG|-TG<br />G->@<br />T->FS<br />S->*FS|/FS<br />S->@<br />F->(E)<br />F->i"
+const e1="i+i*i"
 
 class LL1 extends React.Component{
     
@@ -97,7 +102,8 @@ class LL1 extends React.Component{
             ],
             new_grammar:[
 
-            ]
+            ],
+            drawerVisible:false
         }
         
     }
@@ -139,7 +145,7 @@ class LL1 extends React.Component{
         return(
             <div className="container">
                 <div className="left-side">                 
-                    <Card title="输入" size="small">
+                    <Card title="输入" size="small"   extra={<a onClick={this.showDrawer.bind(this)}>👋 Examples</a>}>
                         <Form layout="vertical" ref={this.formRef}>
                             <Form.Item label="输入文法" name="grammar" rules={[{ required: true, message: '文法不能为空' }]}>
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
@@ -194,9 +200,65 @@ class LL1 extends React.Component{
                     </Collapse> 
     
                 </div>
+                <Drawer
+                    title="🗃 Examples"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.drawerVisible}
+                    width={400}
+                >
+                    <Tabs defaultActiveKey="1">
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            🧱  样例一
+                            </span>
+                        }
+                        key="1"
+                        >
+                        <Card size={'small'}>
+                            <Card title="文法" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g1}}></p>
+                            </Card>
+                            <Card title="表达式" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: e1}}></p>
+                            </Card>
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill1.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                       
+                      
+                    </Tabs>,
+                    
+                </Drawer>
             </div>
         )
     }
+    showDrawer () {
+        this.setState({
+            drawerVisible:true
+        })
+    };
+    // 样例一
+    Fill1(){
+        this.formRef.current.setFieldsValue({
+            grammar:"E->TG\nG->+TG|-TG\nG->@\nT->FS\nS->*FS|/FS\nS->@\nF->(E)\nF->i",
+            expression:"i+i*i"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    onClose = () => {
+        this.setState({
+            drawerVisible:false
+        })
+    };
     clearForm(){
         this.formRef.current.setFieldsValue({
             grammar:"",

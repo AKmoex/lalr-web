@@ -15,12 +15,20 @@ import {
     Row,
     Col,
     Collapse,
-    message
+    message,
+    Drawer,
+    Tabs
   } from 'antd';
 
 
 import axios from 'axios';
 const { Panel } = Collapse;
+
+const g1="E->E+T|T<br />T->T*F|F<br />F->(E)|i"
+const e1="i+i"
+
+const g2="S->a|^|(T)<br />T->T,S|S"
+const e2="(a,(a,a))"
 
 class OPA extends React.Component{
     
@@ -65,16 +73,13 @@ class OPA extends React.Component{
 
             treeData : {
             },
+            drawerVisible:false
 
         }
         
     }
 
-
-
-    
     formRef = React.createRef();
-    
 
     render(){
         const columns = [
@@ -146,7 +151,7 @@ class OPA extends React.Component{
         return(
             <div className="container">
                 <div className="left-side">                 
-                    <Card title="算符优先分析法" size="small">
+                    <Card title="算符优先分析法" size="small" extra={<a onClick={this.showDrawer.bind(this)}>👋 Examples</a>}>
                         <Form layout="vertical" ref={this.formRef}>
                             <Form.Item label="输入文法" name="grammar" rules={[{ required: true, message: '文法不能为空' }]}>
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
@@ -198,8 +203,95 @@ class OPA extends React.Component{
                     </Collapse> 
     
                 </div>
+                <Drawer
+                    title="🗃 Examples"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.drawerVisible}
+                    width={400}
+                >
+                    <Tabs defaultActiveKey="1">
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            💻  样例一
+                            </span>
+                        }
+                        key="1"
+                        >
+                        <Card size={'small'}>
+                            <Card title="文法" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g1}}></p>
+                            </Card>
+                            <Card title="表达式" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: e1}}></p>
+                            </Card>
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill1.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            🖨  样例二
+                            </span>
+                        }
+                        key="2"
+                        >
+                            <Card size={'small'}>
+                                <Card title="文法" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: g2}}></p>
+                                </Card>
+                                <Card title="表达式" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: e2}}></p>
+                                </Card>
+                                <Row justify="end">     
+                                    <Col>
+                                        <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill2.bind(this)}>Fill</Button>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Tabs.TabPane>
+                        
+                    </Tabs>,
+                    
+                </Drawer>
             </div>
         )
+    }
+    onClose = () => {
+        this.setState({
+            drawerVisible:false
+        })
+    };
+    showDrawer () {
+        this.setState({
+            drawerVisible:true
+        })
+    };
+    // 样例一 
+    Fill1(){
+        this.formRef.current.setFieldsValue({
+            grammar:"E->E+T|T\nT->T*F|F\nF->(E)|i",
+            expression:"i+i"
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 样例二 
+    Fill2(){
+        this.formRef.current.setFieldsValue({
+            grammar:"S->a|^|(T)\nT->T,S|S",
+            expression:"(a,(a,a))"
+        });
+        this.setState({
+            drawerVisible:false
+        })
     }
     clearForm(){
         this.formRef.current.setFieldsValue({

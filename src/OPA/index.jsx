@@ -2,7 +2,6 @@ import React from 'react'
 
 import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
 import './opa.css'
-import { FrownTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import Tree from 'react-d3-tree';
 
 import {
@@ -215,7 +214,7 @@ class OPA extends React.Component{
                         <Tabs.TabPane
                         tab={
                             <span>
-                            💻  样例一
+                            📟  样例一
                             </span>
                         }
                         key="1"
@@ -237,7 +236,7 @@ class OPA extends React.Component{
                         <Tabs.TabPane
                         tab={
                             <span>
-                            🖨  样例二
+                            📠  样例二
                             </span>
                         }
                         key="2"

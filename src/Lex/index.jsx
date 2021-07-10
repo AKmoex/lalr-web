@@ -16,13 +16,25 @@ import {
     Popconfirm,
     Button,
     Tooltip,
-     Tag, Space,
-     Modal,
-     message
+    Tag, Space,
+    Modal,
+    message,
+    Tabs,
+    Drawer
   } from 'antd';
 
 
 import axios from 'axios';
+
+// 样例
+const g1 = "if i=0 then n++;<br />a<=3b%);"
+
+// 行内注释
+const g2 = "if i=0 then n++;<br />// test<br />a<=3b%);"
+
+
+// 字符串
+const g3 = 'if i=0 then n++;<br />a<=3b%);<br />// test<br />string s="hello";<br />i=0'
 
 
 class Lex extends React.Component{
@@ -43,7 +55,8 @@ class Lex extends React.Component{
             data:[
                   
             ],
-            delimiter_save:[]
+            delimiter_save:[],
+            drawerVisible:false
         }
     }
     formRef = React.createRef();
@@ -155,7 +168,7 @@ class Lex extends React.Component{
                     <Button type="primary" onClick={this.deleteDelimiter.bind(this)} style={{marginRight:"20px"}}>删除</Button>
                     <Button type="primary" onClick={this.addDelimiter.bind(this)}>增加</Button>
                     </Card>
-                    <Card title="输入代码" size="small">
+                    <Card title="输入代码" size="small"  extra={<a onClick={this.showDrawer.bind(this)}>👋 Examples</a>}>
                         <Form layout="vertical" ref={this.formRef}>
                             <Form.Item name="words" rules={[{ required: true, message: '请输入词法' }]}>
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
@@ -236,8 +249,121 @@ class Lex extends React.Component{
                             </Form.Item>
                         </Form>
                 </Modal>
+                <Drawer
+                    title="🗃 Examples"
+                    placement="right"
+                    closable={false}
+                    onClose={this.onClose}
+                    visible={this.state.drawerVisible}
+                    width={400}
+                >
+                    <Tabs defaultActiveKey="1">
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            🧭  样例
+                            </span>
+                        }
+                        key="1"
+                        >
+                        <Card size={'small'}>
+                            <Card title="代码" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g1}}></p>
+                            </Card>
+                            
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill1.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            📃  行内注释
+                            </span>
+                        }
+                        key="2"
+                        >
+                            <Card size={'small'}>
+                                <Card title="代码" bordered={false} size={'small'}>
+                                    <p dangerouslySetInnerHTML={{__html: g2}}></p>
+                                </Card>
+                             
+                                <Row justify="end">     
+                                    <Col>
+                                        <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill2.bind(this)}>Fill</Button>
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Tabs.TabPane>
+
+                        <Tabs.TabPane
+                        tab={
+                            <span>
+                            ⚙️  字符串
+                            </span>
+                        }
+                        key="3"
+                        >
+                        <Card size={'small'}>
+                            <Card title="代码" bordered={false} size={'small'}>
+                                <p dangerouslySetInnerHTML={{__html: g3}}></p>
+                            </Card>
+                          
+                            <Row justify="end">     
+                                <Col>
+                                    <Button type="link" style={{marginRight:'10px'}} size={'large'} onClick={this.Fill3.bind(this)}>Fill</Button>
+                                </Col>
+                            </Row>
+                        </Card>
+                        </Tabs.TabPane>
+                        
+                    </Tabs>,
+                    
+                </Drawer>
             </div>
         )
+    }
+
+    showDrawer () {
+        this.setState({
+            drawerVisible:true
+        })
+    };
+    
+    onClose = () => {
+        this.setState({
+            drawerVisible:false
+        })
+    };
+    // 样例 
+    Fill1(){
+        this.formRef.current.setFieldsValue({
+            words:"if i=0 then n++;\na<=3b%);",
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 行内注释 
+    Fill2(){
+        this.formRef.current.setFieldsValue({
+            words:"if i=0 then n++;\n// test\na<=3b%);",
+        });
+        this.setState({
+            drawerVisible:false
+        })
+    }
+    // 字符串
+    Fill3(){
+        this.formRef.current.setFieldsValue({
+            words:'if i=0 then n++;\na<=3b%);\n// test\nstring s="hello";\ni=0',
+        });
+        this.setState({
+            drawerVisible:false
+        })
     }
     clickButton(){
         const key="analyse"

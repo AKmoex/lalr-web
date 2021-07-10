@@ -25,13 +25,11 @@ import {
      Tabs,
      Row,
      Col,
-     Descriptions,
-     Badge
+
   } from 'antd';
 
 
 import axios from 'axios';
-import { interpolate } from 'd3';
 const { Panel } = Collapse;
 
 // 无冲突
@@ -163,8 +161,14 @@ class LALR extends React.Component{
                                 <Input style={{height:"40px"}}></Input>
                             </Form.Item>
                         </Form>
-                        <Button type="danger" onClick={this.clearForm.bind(this)} className="btn">清空</Button>
-                        <Button type="primary" onClick={this.analyse.bind(this)}>分析</Button>
+                        <Row justify="end" gutter={16}>     
+                            <Col>
+                                <Button type="danger" onClick={this.clearForm.bind(this)} >清空</Button>
+                            </Col>
+                            <Col>
+                                <Button type="primary" onClick={this.analyse.bind(this)}>分析</Button>
+                            </Col>
+                        </Row>
                     </Card>
                    
                 </div>

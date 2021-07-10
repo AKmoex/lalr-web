@@ -161,9 +161,14 @@ class Lex extends React.Component{
                                 <Input.TextArea style={{height:"200px"}}></Input.TextArea>
                             </Form.Item>
                         </Form>
-                        <Button type="danger" onClick={this.clearForm.bind(this)} className="btn">清空</Button>
-
-                        <Button type="primary" onClick={this.clickButton.bind(this)}>分析</Button>
+                        <Row justify="end" gutter={16}>     
+                            <Col>
+                                <Button type="danger" onClick={this.clearForm.bind(this)} >清空</Button>
+                            </Col>
+                            <Col>
+                                <Button type="primary" onClick={this.clickButton.bind(this)}>分析</Button>
+                            </Col>
+                        </Row>
                     </Card>
                 </div>
                 <div className="right-side">

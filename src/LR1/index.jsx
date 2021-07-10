@@ -17,6 +17,8 @@ import {
      Tag,
      Collapse,
      message,
+     Row,
+     Col
   } from 'antd';
 
 
@@ -100,8 +102,6 @@ class LR1 extends React.Component{
         return(
             <div className="container">
                  
-
-
                 <div className="left-side">                 
                     <Card title="输入" size="small">
                         <Form layout="vertical" ref={this.formRef}>
@@ -112,8 +112,15 @@ class LR1 extends React.Component{
                                 <Input style={{height:"40px"}}></Input>
                             </Form.Item>
                         </Form>
-                        <Button type="danger" onClick={this.clearForm.bind(this)} className="btn">清空</Button>
-                        <Button type="primary" onClick={this.analyse.bind(this)}>分析</Button>
+                      
+                        <Row justify="end" gutter={16}>     
+                            <Col>
+                                <Button type="danger" onClick={this.clearForm.bind(this)}>清空</Button>
+                            </Col>
+                            <Col>
+                                <Button type="primary" onClick={this.analyse.bind(this)}>分析</Button>
+                            </Col>
+                        </Row>
                     </Card>
                    
                 </div>
